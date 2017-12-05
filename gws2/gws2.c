@@ -25,18 +25,12 @@ static int (*gws2RadioUpdate)(void *radio);
 void gws2Sync(void)
 {
 	// TODO: query from libiwinfo
-	int i;
 	struct gws2Abb abb;
 	memset(&abb, 0x0, sizeof(abb));
 	if (GWSABBUpdate(&abb)) {
 		printf("error> failed to update abb\n");
 	} else {
-		SG_GWS.abb.signal = abb.signal;
-		SG_GWS.abb.noise = abb.noise;
-		SG_GWS.abb.chanBw = abb.chanBw;
-		for(i = 0; i < sizeof(SG_GWS.abb.peersSignal); i ++) {
-			SG_GWS.abb.peersSignal[i] = abb.peersSignal[i];
-		}
+		memcpy(&(SG_GWS.abb), &abb, sizeof(struct gws2Abb));
 	}
 
 	// TODO: query from command line
@@ -121,12 +115,20 @@ int gws2AbbMode(void)
 {
 	return SG_GWS.abb.modeNum;
 }
-int gws2AbbPeer(const int index)
+int gws2AbbPeerSignal(const int index)
 {
-	if (index && index <= GWS_ABB_DEFAULT_PEER_QTY)
-		return SG_GWS.abb.peersSignal[index];
-	else
-		return SG_GWS.abb.peersSignal[0];
+	int signal, noise = SG_GWS.abb.noise;
+	if (index >= 0 && index < GWS_ABB_DEFAULT_PEER_QTY) {
+		signal = SG_GWS.abb.peers[index-1].pSignal;
+	} else {
+		signal = noise;
+	}
+
+	if (signal < noise) {
+		signal = noise;
+	}
+
+	return signal;
 }
 int gws2AbbChanBw(void)
 {
@@ -173,15 +175,15 @@ void gws2CmdAbbReset(void)
 }
 void gws2CmdAbbModeMesh(void)
 {
-	sysExecute("config_mesh");
+	sysExecute("arn -M mesh");
 }
 void gws2CmdAbbModeSta(void)
 {
-	sysExecute("config_ear");
+	sysExecute("arn -M ear");
 }
 void gws2CmdAbbModeAp(void)
 {
-	sysExecute("config_car");
+	sysExecute("arn -M car");
 }
 void gws2CmdAbbChanBw(const int val)
 {
@@ -198,37 +200,37 @@ void gws2CmdAbbChanBw(const int val)
 // Radio related
 void gws2CmdRadioPerfMin(void)
 {
-	sysExecute("settxpwr 17");
+	sysExecute("arn -P 17");
 }
 void gws2CmdRadioPerfMax(void)
 {
-	sysExecute("settxpwr 33");
+	sysExecute("arn -P 33");
 }
 void gws2CmdRadioChan(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd), "setchan %d\n", val);
+	snprintf(cmd, sizeof(cmd), "arn -C %d\n", val);
 	sysExecute(cmd);
 }
 void gws2CmdRadioChanBw(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd), "setchanbw %d\n", val);
+	snprintf(cmd, sizeof(cmd), "arn -B %d\n", val);
 	sysExecute(cmd);
 }
 void gws2CmdRadioTxPwr(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd), "settxpwr %d\n", val);
+	snprintf(cmd, sizeof(cmd), "arn -P %d\n", val);
 	sysExecute(cmd);
 }
 void gws2CmdRadioRegion(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd), "setregion %d\n", val);
+	snprintf(cmd, sizeof(cmd), "arn -R %d\n", val);
 	sysExecute(cmd);
 }

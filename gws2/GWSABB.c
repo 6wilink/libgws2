@@ -20,7 +20,6 @@ static int abbPeerUpdate(const struct iwinfo_ops *iw,
 
 int GWSABBUpdate(void *pAbb)
 {
-	struct gws2AbbPeer gws2AbbPeer;
 	struct gws2Abb *abb = (struct gws2Abb *) pAbb;
 
 	const struct iwinfo_ops *iw;
@@ -40,22 +39,23 @@ int GWSABBUpdate(void *pAbb)
 	}
 
 	// TODO: update all
-	memset(&gws2AbbPeer, 0x0, sizeof(gws2AbbPeer));
-	abbPeerUpdate(iw, &gws2AbbPeer, 5);
-	abb->peersSignal[0] = abb->signal;
-	abb->peersSignal[1] = gws2AbbPeer.pSignal;
+	abbPeerUpdate(iw, abb->peers, GWS_ABB_DEFAULT_PEER_QTY);
 
 	return 0;
 }
 
-static int abbPeerUpdate(const struct iwinfo_ops *iw, struct gws2AbbPeer *pPeer, const int max)
+static int abbPeerUpdate(
+		const struct iwinfo_ops *iw,
+		struct gws2AbbPeer *pPeers,
+		const int peerQtyMax)
 {
-	int i;
+	int i, j;
 	int dataLength;
 	char data[IWINFO_BUFSIZE];
 
 	//struct iwinfo_rate_entry *br;
 	struct iwinfo_assoclist_entry *e;
+	struct gws2AbbPeer *peer = pPeers;
 
 	if (iw->assoclist(GWS_ABB_DEFAULT_IFNAME, data, &dataLength)) {
 		printf("error> abb has no peers\n");
@@ -65,10 +65,14 @@ static int abbPeerUpdate(const struct iwinfo_ops *iw, struct gws2AbbPeer *pPeer,
 		return -2;
 	}
 
-	for (i = 0; i < dataLength; i += sizeof(struct iwinfo_assoclist_entry)) {
+	for (
+			i = 0, j = 0;
+			i < dataLength && j < peerQtyMax;
+			i += sizeof(struct iwinfo_assoclist_entry), peer ++, j ++)
+	{
 		e = (struct iwinfo_assoclist_entry *) &data[i];
-		pPeer->pInactive = e->inactive;
-		pPeer->pSignal = e->signal;
+		peer->pInactive = e->inactive;
+		peer->pSignal = e->signal;
 	}
 
 	return 0;

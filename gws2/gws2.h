@@ -9,16 +9,16 @@
 #ifndef GWS2_H_
 #define GWS2_H_
 
-#define GWS_DEFAULT_CMD_LENGTH 	16
+#define GWS_DEFAULT_CMD_LENGTH 		16
 
-#define GWS_ABB_DEFAULT_PEER_QTY 5
-#define GWS_ABB_DEFAULT_IFNAME 	"wlan0"
-#define GWS_ABB_BAR_INACTIVE	3000
+#define GWS_ABB_DEFAULT_PEER_QTY 	10
+#define GWS_ABB_DEFAULT_IFNAME 		"wlan0"
+#define GWS_ABB_BAR_INACTIVE 		3000
 
-#define GWS_MAC_LENGTH 			18
-#define GWS_SSID_LENGTH 		16
+#define GWS_MAC_LENGTH 				18
+#define GWS_SSID_LENGTH 			16
 
-#define GWS_BAR_VAL				-110
+#define GWS_BAR_VAL 				-110
 
 // hardware architecture
 enum GWS_HWARCH
@@ -44,10 +44,10 @@ enum GWS_ABB_MODE
 // analog base band peer(s)
 struct gws2AbbPeer
 {
-	struct gws2AbbPeer *next, *prev;
+	//struct gws2AbbPeer *next, *prev;
 	int mIndex, index;
 	char pMac[GWS_MAC_LENGTH];
-	int pSignal, pNoise, pInactive;
+	int pSignal, pInactive;
 	struct {
 		float br;
 		int mcs;
@@ -62,11 +62,11 @@ struct gws2AbbPeer
 
 struct gws2Abb
 {
-	struct gws2Abb *next, *prev;
+	//struct gws2Abb *next, *prev;
 	int index;
 	char wmac[GWS_MAC_LENGTH], bssid[GWS_MAC_LENGTH];
 	char ssid[GWS_SSID_LENGTH];
-	int signal, noise, peersSignal[5];
+	int signal, noise;
 	int chanBw;
 	enum GWS_ABB_MODE modeNum;
 	struct {
@@ -78,7 +78,7 @@ struct gws2Abb
 		int mcs;
 		unsigned long long bytes;
 	} tx;
-	struct gws2AbbPeer *peers;
+	struct gws2AbbPeer peers[GWS_ABB_DEFAULT_PEER_QTY];
 };
 
 struct gws2Radio
@@ -121,7 +121,7 @@ int gws2AbbSignal(void);
 int gws2AbbNoise(void);
 
 int gws2AbbMode(void);
-int gws2AbbPeer(const int index);
+int gws2AbbPeerSignal(const int index);
 
 int gws2RadioTxPwr(void);
 int gws2RadioRxGain(void);
