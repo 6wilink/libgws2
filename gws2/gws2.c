@@ -175,36 +175,36 @@ void gws2CmdAbbReset(void)
 }
 void gws2CmdAbbModeMesh(void)
 {
-	sysExecute("arn -M mesh");
+	sysExecute("arn -M mesh;");
 }
 void gws2CmdAbbModeSta(void)
 {
-	sysExecute("arn -M ear");
+	sysExecute("arn -M ear;");
 }
 void gws2CmdAbbModeAp(void)
 {
-	sysExecute("arn -M car");
+	sysExecute("arn -M car;");
+}
+void gws2CmdAbbModeAdHoc(void)
+{
+	sysExecute("arn -M adhoc;");
 }
 void gws2CmdAbbChanBw(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd),
-			"uci set wireless.@wifi-iface[0].chanbw=%d; "\
-			"uci commit wireless; "\
-			"wifi\n", val
-	);
+	snprintf(cmd, sizeof(cmd), "arn -B %d\n", val);
 	sysExecute(cmd);
 }
 
 // Radio related
 void gws2CmdRadioPerfMin(void)
 {
-	sysExecute("arn -P 17");
+	sysExecute("arn -P 17;");
 }
 void gws2CmdRadioPerfMax(void)
 {
-	sysExecute("arn -P 33");
+	sysExecute("arn -P 33;");
 }
 void gws2CmdRadioChan(const int val)
 {
@@ -217,7 +217,7 @@ void gws2CmdRadioChanBw(const int val)
 {
 	char cmd[GWS_DEFAULT_CMD_LENGTH];
 	memset(cmd, 0x0, sizeof(cmd));
-	snprintf(cmd, sizeof(cmd), "arn -B %d\n", val);
+	snprintf(cmd, sizeof(cmd), "arn -B %d\n; ", val);
 	sysExecute(cmd);
 }
 void gws2CmdRadioTxPwr(const int val)
