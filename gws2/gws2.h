@@ -136,6 +136,8 @@ void gws2CmdAbbReset(void);
 void gws2CmdAbbModeMesh(void);
 void gws2CmdAbbModeSta(void);
 void gws2CmdAbbModeAp(void);
+void gws2CmdAbbModeAdHoc(void);
+
 void gws2CmdAbbChanBw(const int val);
 
 void gws2CmdRadioPerfMin(void);
