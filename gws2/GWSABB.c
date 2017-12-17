@@ -114,6 +114,9 @@ static int abbModeNum(const struct iwinfo_ops *iw)
 		case IWINFO_OPMODE_MESHPOINT:
 			mode = GWS_MESH_POINT;
 			break;
+		case IWINFO_OPMODE_ADHOC:
+		    mode = GWS_AD_HOC;
+		    break;
 		default:
 			mode = GWS_DEFAULT;
 			break;
